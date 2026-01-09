@@ -1,0 +1,5 @@
+FROM mariadb:latest
+ENV MARIADB_ROOT_PASSWORD=12312
+ENV MARIADB_DATABASE=tasksdb
+COPY init.sql /docker-entrypoint-init.d/
+EXPOSE 3306
