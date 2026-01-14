@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  database:
+    image: hermezis/database
+    container_name: inspiring_hofstadter
+    ports:
+      - "3306:3306"
+
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: tasksdb
+
+    volumes:
+      - ./db-data:/var/lib/mysql
+
+    networks:
+      - proxy
+  frontend:
+    image: hermezis/frontend
+    container_name: nifty_moser
+    ports:
+      - "8080:8080"
+    networks:
+      - proxy
+        
+  backend:
+    image: hermezis/backendweb
+    container_name: stoic_jang
+    environment:
+      DB_HOST: inspiring_hofstadter
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: tasksdb
+      PORT: 3000
+      HOST: 0.0.0.0
+    ports:
+      - "3000:3000"
+    networks:
+      - proxy
+    depends_on:
+      - database
+
+networks:
+  proxy:
+    external: true
+    driver: bridge
