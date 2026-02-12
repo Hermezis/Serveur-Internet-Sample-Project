@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: always
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.kuma-public.rule=Host(`monitoring.vincentsimard.ca`) && (PathPrefix(`/status`) || PathPrefix(`/assets`) || PathPrefix(`/api/status`) || Path(`/favicon.ico`))"
+      - "traefik.http.routers.kuma-public.entrypoints=websecure"
+      - "traefik.http.routers.kuma-public.tls=true"
+      - "traefik.http.routers.kuma-public.service=kuma"
+
+      - "traefik.http.routers.kuma-private.rule=Host(`monitoring.vincentsimard.ca`)"
+      - "traefik.http.routers.kuma-private.middlewares=tinyauth"
+      - "traefik.http.routers.kuma-private.entrypoints=websecure"
+      - "traefik.http.routers.kuma-private.tls=true"
+      - "traefik.http.routers.kuma-private.service=kuma"
+
+      - "traefik.http.services.kuma.loadbalancer.server.port=3001"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
